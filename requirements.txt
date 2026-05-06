@@ -1,0 +1,9 @@
+manim==0.20.1
+gradio
+edge-tts
+python-dotenv
+requests
+pyyaml
+pillow>=11.0.0
+numpy>=2.1
+scipy
