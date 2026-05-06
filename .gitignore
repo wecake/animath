@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.venv/
+*.log
+.DS_Store
+output/!output/.gitkeep
+logs/!logs/.gitkeep
+*.mp4
+*.mp3
+*.srt
+*.txt
