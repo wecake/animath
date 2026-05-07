@@ -1,80 +1,65 @@
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
+# run_webui.py 最终稳定版
 import gradio as gr
-from app.template_lib.template_factory import TemplateFactory
-from app.storyboard.storyboard_generator import StoryboardGenerator
-from app.manim_code.code_gen import ManimCodeGenerator
-from app.tts_subtitle.tts_engine import EdgeTTSEngine
-from app.tts_subtitle.srt_generator import SrtGenerator
+from pathlib import Path
+from app.llm import stage1_solve, stage2_storyboard, stage3_scripts
+from prompt.prompt_router import GEO_MODEL_CHOICES
 
-STYLE_CONFIG = {
-    "colors": {
-        "bg": "#000000",
-        "primary": "#FFFFFF",
-        "secondary": "#87CEEB",
-        "highlight": "#FFFF00",
-        "accent": "#FF0000"
-    }
-}
+VERSION = "v0.0.6"
+TITLE = f"几何AI动画教学系统"
+OUTPUT = Path("output")
+OUTPUT.mkdir(exist_ok=True)
 
-def generate_all(question: str, progress=gr.Progress()):
-    progress(0.1, desc="🎯 正在识别题型...")
-    try:
-        template = TemplateFactory.get_template(question)
-    except:
-        return "❌ 无法识别题型", "", "", ""
+def safe_join(arr):
+    if not arr:
+        return ""
+    return "\n".join(str(x) for x in arr if x)
 
-    progress(0.2, desc="📝 生成分镜与解说词...")
-    sg = StoryboardGenerator(template)
-    story_data = sg.generate({})
+def save_outputs(answer, steps, scripts, storyboard, geo_model):
+    (OUTPUT / "answer.txt").write_text(str(answer), encoding="utf-8")
+    (OUTPUT / "steps.txt").write_text(steps, encoding="utf-8")
+    (OUTPUT / "scripts.txt").write_text(scripts, encoding="utf-8")
+    (OUTPUT / "storyboard.txt").write_text(storyboard, encoding="utf-8")
+    (OUTPUT / "geo_model.txt").write_text(geo_model, encoding="utf-8")
 
-    progress(0.3, desc="⚙️ 生成 Manim 代码...")
-    code_gen = ManimCodeGenerator(STYLE_CONFIG)
-    manim_code = code_gen.generate_full_code(story_data)
-    code_path = os.path.join("output", "manim_code.py")
-    os.makedirs("output", exist_ok=True)
-    with open(code_path, "w", encoding="utf-8") as f:
-        f.write(manim_code)
+def pipeline(img, note, geo_model, progress=gr.Progress()):
+    yield "", "", "", "", "启动中"
 
-    progress(0.5, desc="🔊 生成 AI 配音...")
-    try:
-        tts = EdgeTTSEngine()
-        tts.run_batch(story_data["scripts"])
-    except Exception as e:
-        pass
+    d1 = stage1_solve(img, note, geo_model)
+    ans = d1.get("answer", "")
+    steps = safe_join(d1.get("steps", []))
+    yield steps, "", "", ans, "解题完成"
 
-    progress(0.7, desc="📄 生成字幕...")
-    srt_dir = "output/subtitle"
-    os.makedirs(srt_dir, exist_ok=True)
-    srt_path = os.path.join(srt_dir, "auto.srt")
-    SrtGenerator.generate_srt(story_data["storyboard"], story_data["scripts"], srt_path)
+    d2 = stage2_storyboard(steps, geo_model)
+    story = safe_join(d2.get("storyboard", []))
+    yield steps, "", story, ans, "分镜完成"
 
-    progress(0.9, desc="✅ 任务完成！")
+    d3 = stage3_scripts(steps, geo_model)
+    scripts = safe_join(d3.get("scripts", []))
+    yield steps, scripts, story, ans, "配音文案完成"
 
-    script_text = "\n\n".join(story_data["scripts"])
-    storyboard_text = "\n".join([f"[{i+1}] {x['scene']} ({x['duration']}s)" for i, x in enumerate(story_data["storyboard"])])
-    
-    return (
-        "✅ 生成完成！\n\n渲染命令：manim -pql output/manim_code.py",
-        manim_code,
-        script_text,
-        storyboard_text
-    )
+    save_outputs(ans, steps, scripts, story, geo_model)
+    yield steps, scripts, story, ans, "✅ 全部完成"
 
-with gr.Blocks(title="MathAnimeOS", theme=gr.themes.Soft()) as demo:
-    gr.Markdown("# 🎬 MathAnimeOS V1.0")
-    question_input = gr.Textbox(label="输入题目", lines=3, placeholder="正方形ABCD边长为4...")
-    run_btn = gr.Button("▶️ 一键生成", variant="primary")
+with gr.Blocks(title=TITLE) as demo:
+    gr.Markdown("# 几何AI动画教学系统")
+    gr.Markdown("### 智能解题 | 分镜 | 配音 | 渲染 | 合成")
+
     with gr.Row():
+        img = gr.Image(type="filepath", label="题目图片", height=400)
         with gr.Column():
-            status_output = gr.Textbox(label="状态")
-            manim_code_output = gr.Code(label="Manim 代码", language="python", lines=10)
-        with gr.Column():
-            script_output = gr.Textbox(label="解说词", lines=8)
-            storyboard_output = gr.Textbox(label="分镜", lines=8)
-    run_btn.click(generate_all, inputs=question_input, outputs=[status_output, manim_code_output, script_output, storyboard_output])
+            note = gr.Textbox(label="辅助说明", lines=3)
+            geo_model = gr.Dropdown(choices=GEO_MODEL_CHOICES, value=GEO_MODEL_CHOICES[0], label="几何模型")
+            btn = gr.Button("🚀 开始解析", variant="primary")
+
+    gr.Markdown("---")
+
+    steps = gr.Textbox(label="解题步骤", lines=5)
+    story = gr.Textbox(label="动画分镜", lines=4)
+    scripts = gr.Textbox(label="配音文案", lines=4)
+    ans = gr.Textbox(label="最终答案")
+    status = gr.Textbox(label="状态")
+
+    btn.click(pipeline, inputs=[img, note, geo_model], outputs=[steps, scripts, story, ans, status])
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    demo.queue().launch(server_name="0.0.0.0", server_port=7860)

@@ -1,15 +1,26 @@
+# 虚拟环境
+.venv/
+venv/
+env/
+
+# 环境密钥文件
+.env
+.env.*
+*.env
+
+# 缓存
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-env/
-venv/
-.venv/
-*.log
-.DS_Store
-output/!output/.gitkeep
-logs/!logs/.gitkeep
+
+# Manim 输出
+media/
+output/
+
+# 媒体文件
 *.mp4
 *.mp3
 *.srt
-*.txt
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
