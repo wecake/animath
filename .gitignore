@@ -1,26 +1,12 @@
-# 虚拟环境
-.venv/
-venv/
-env/
-
-# 环境密钥文件
-.env
-.env.*
-*.env
-
-# 缓存
-__pycache__/
-*.pyc
-
-# Manim 输出
-media/
-output/
-
-# 媒体文件
-*.mp4
-*.mp3
-*.srt
-
-# 系统垃圾
-.DS_Store
-Thumbs.db
+__pycache__/ 
+.env 
+media/ 
+*.mp4 
+*.pyc 
+.uv/ 
+venv/ 
+.venv/ 
+output/ 
+batch_output/ 
+.next/ 
+node_modules/ 
