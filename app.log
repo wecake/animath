@@ -1,0 +1,26 @@
+2026-05-07 19:51:57,676 | INFO  | ===== 启动 WebUI 服务 =====
+2026-05-07 19:51:58,303 | INFO  | HTTP Request: GET http://127.0.0.1:7860/gradio_api/startup-events "HTTP/1.1 200 OK"
+2026-05-07 19:51:58,352 | INFO  | HTTP Request: HEAD http://127.0.0.1:7860/ "HTTP/1.1 200 OK"
+2026-05-07 19:51:58,451 | INFO  | HTTP Request: GET https://api.gradio.app/pkg-version "HTTP/1.1 200 OK"
+2026-05-07 19:52:16,351 | INFO  | 开始解析流程
+2026-05-07 19:52:17,705 | INFO  | 解题完成
+2026-05-07 19:52:18,813 | INFO  | 分镜完成
+2026-05-07 19:52:19,957 | INFO  | 文案完成
+2026-05-07 19:52:19,974 | ERROR | 流程异常: name 'storyboard' is not defined
+2026-05-07 19:55:58,868 | INFO  | ===== 启动 WebUI 服务 =====
+2026-05-07 19:55:58,868 | INFO  | Python 环境: D:\GithubPro\animath\.venv\Scripts\python.exe
+2026-05-07 19:55:59,251 | INFO  | HTTP Request: GET https://api.gradio.app/pkg-version "HTTP/1.1 200 OK"
+2026-05-07 19:55:59,503 | INFO  | HTTP Request: GET http://127.0.0.1:7860/gradio_api/startup-events "HTTP/1.1 200 OK"
+2026-05-07 19:55:59,560 | INFO  | HTTP Request: HEAD http://127.0.0.1:7860/ "HTTP/1.1 200 OK"
+2026-05-07 19:56:22,846 | INFO  | ===== 开始解析流程 =====
+2026-05-07 19:56:22,856 | INFO  | 步骤1：AI 解题中
+2026-05-07 19:56:24,421 | INFO  | ✅ 解题完成
+2026-05-07 19:56:24,435 | INFO  | 步骤2：生成分镜
+2026-05-07 19:56:25,403 | INFO  | ✅ 分镜生成完成
+2026-05-07 19:56:25,417 | INFO  | 步骤3：生成配音文案
+2026-05-07 19:56:26,312 | INFO  | ✅ 配音文案生成完成
+2026-05-07 19:56:26,334 | INFO  | ✅ 所有文件已保存到 output/
+2026-05-07 19:56:33,582 | INFO  | 🎬 启动动画渲染
+2026-05-07 20:18:45,401 | INFO  | 🎙️ 开始生成配音 | 音色: female_calm
+2026-05-07 20:18:47,094 | INFO  | ✅ 配音生成成功
+2026-05-07 20:19:06,103 | INFO  | 📽️ 启动视频合成

@@ -1,0 +1,2 @@
+file 'output/audio\voice_0.mp3'
+file 'output/audio\voice_1.mp3'
